@@ -6,21 +6,25 @@ export class Player {
     this.width = 100;
     this.height = 91.3;
     this.x = 0;
-    this.y = this.game.height - this.height;
+    this.y = this.game.height - this.height - this.game.groundMargin;
     this.vy = 0;
     this.vyStep = 30;
     this.weight = 1;
     this.frameX = 0;
     this.frameY = 0;
+    this.maxFrameX;
     this.image = document.getElementById('player');
     this.speed = 0;
     this.maxSpeed = 10;
+    this.fps = 20; // 动画刷新率
+    this.frameInterval = 1000 / this.fps; //帧间隔
+    this.frameTimer = 0;
     this.states = [new Sitting(this), new Running(this), new Jumping(this), new Falliing(this)];
     this.currentState = this.states[0];
     this.currentState.enter();
   }
 
-  update(input) {
+  update(input, deltaTime) {
     this.currentState.inputHandler(input);
     // 水平移动
     this.x += this.speed;
@@ -35,10 +39,17 @@ export class Player {
     this.y -= this.vy;
     if (!this.onGround()) this.vy -= this.weight;
     else this.vy = 0;
+
+    if (this.frameTimer > this.frameInterval) {
+      this.frameTimer = 0;
+      if (this.frameX < this.maxFrameX) this.frameX++;
+      else this.frameX = 0;
+    } else {
+      this.frameTimer += deltaTime;
+    }
   }
 
   draw(context) {
-    console.log(this.frameY);
     context.drawImage(
       this.image,
       this.frameX * this.width,
@@ -53,10 +64,11 @@ export class Player {
   }
 
   onGround() {
-    return this.y >= this.game.height - this.height;
+    return this.y >= this.game.height - this.height - this.game.groundMargin;
   }
 
-  setState(state) {
+  setState(state, speed) {
+    this.game.speed = this.game.maxSpeed * speed;
     this.currentState = this.states[state];
     this.currentState.enter();
   }

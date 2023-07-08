@@ -3,7 +3,6 @@ export class InputHandler {
     this.keys = [];
     this.effectiveKey = ['Enter', 'a', 'd', 'w', 's'];
     window.addEventListener('keydown', e => {
-      console.log(e.key, this.keys);
       const key = e.key.toLowerCase();
       if (this.effectiveKey.includes(key) && !this.keys.includes(key)) {
         this.keys.push(key);
